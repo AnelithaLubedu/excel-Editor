@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf">
+  <title>Preview Excel data</title>
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+      table input {
+      width: 100%;
+      border: none;
+      background: transparent;
+      padding: 4px;
+    }
+    table input:focus {
+      outline: 1px solid #0d6efd;
+      background: #eef4ff;
+    }
+    </style>
+</head>
+<body class= "p-4">
+  <div class= "container mt-5">
+      {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <div class="alert alert-success text-center">{{ messages[0] }}</div>
+    {% endif %}
+  {% endwith %}
+
+   <h2 class="mb-3">📊 Preview & Edit Excel Data</h2>
+  <p class="lead">Total rows detected: <strong>{{ total_rows }}</strong></p>
+
+  <!-- Editable Table -->
+  <form action="/save_preview/{{ file_id }}" method="POST">
+    <div class="table-responsive mb-4">
+      <table class="table table-bordered table-striped">
+        <thead class="table-primary">
+          <tr>
+            {% for col in df.columns %}
+              <th>{{ col }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for i, row in df.iterrows() %}
+            <tr>
+              {% for col in df.columns %}
+                <td>
+                  <input type="text" name="{{ col }}_{{ i }}" value="{{ row[col] }}">
+                </td>
+              {% endfor %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Save Edited Data -->
+    <button class="btn btn-warning" type="submit">💾 Save Changes (Keep Preview)</button>
+  </form>
+
+  <!-- Confirm Import Buttons -->
+  <form action="/confirm" method="post" class="d-flex gap-3 mt-4">
+    <input type="hidden" name="orig_filename" value="{{ filename }}">
+    <button class="btn btn-success" type="submit">✅ Confirm & Import</button>
+    <a class="btn btn-secondary" href="/">❌ Cancel</a>
+  </form>
+
+</div>
+</body>
+</html>
