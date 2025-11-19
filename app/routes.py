@@ -18,18 +18,14 @@ def allowed_filename(fname):
     return ext in ALLOWED_EXT
 
 
-# ---------------------------
 # HOMEPAGE
-# ---------------------------
 @routes.route('/')
 def index():
     files = get_uploaded_excel_files()
     return render_template('index.html', excel_files=files)
 
 
-# ---------------------------
 # UPLOAD EXCEL + SHOW PREVIEW
-# ---------------------------
 @routes.route('/upload', methods=['POST'])
 def upload_file():
     file = request.files.get('file')
@@ -59,7 +55,7 @@ def upload_file():
         'show_data.html',
         df=df,
         filename=filename,
-        file_id=0,      # new file preview
+        file_id=0,
         total_rows=len(df)
     )
 
