@@ -18,7 +18,7 @@ def allowed_filename(fname):
     return ext in ALLOWED_EXT
 
 
-# HOMEPAGE
+# homepages
 @routes.route('/')
 def index():
     files = get_uploaded_excel_files()
