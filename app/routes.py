@@ -1,8 +1,9 @@
-from flask import Blueprint, render_template, request, current_app, redirect, url_for, flash,session
+from flask import Blueprint, render_template, request, current_app, redirect, url_for, flash,session,send_file
 import pandas as pd
 import os
 from werkzeug.utils import secure_filename
 import re
+import io
 
 from api.external_api import send_to_api
 from db import models
@@ -239,3 +240,45 @@ def confirm_upload():
 
     flash(f"Successfully imported {len(df)} rows into '{table_name}'!")
     return redirect(url_for('routes.index'))
+
+
+@routes.route('/download/<int:file_id>')
+def download_excel(file_id):
+    #Get table info
+    conn= get_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT table_name,original_filename FROM uploaded_files WHERE id=%s",(file_id))
+    result = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    
+    
+    if not result:
+        return "File not found",404
+    
+    table_name = result['table_name']
+    orig_filename = result['original_filename']
+    
+    
+    #Fetch data on DB
+    conn = get_connection()
+    df = pd.read_sql(f"SELECT * FROM `{table_name}`", conn)
+    conn.close()
+    df = df.drop(columns=['id'], errors='ignore')
+    
+    #Convert to Excel in memory
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        df.to_excel(writer, index=False, sheet_name='Sheet1')
+    output.seek(0)
+    
+    #Send as downloadable file
+    safe_filename = orig_filename.replace(' ', '_') + '.xlsx'
+    return send_file(output, download_name=safe_filename, as_attachment=True)
+    
+    
+    
+    
+    
+    
+    
