@@ -15,10 +15,11 @@ def create_app():
     app.register_blueprint(routes)
     app.register_blueprint(excel_api)
 
-    @app.route('/')
+    @app.route("/")
     def index():
-        from db.query import get_uploaded_excel_files
-        files = get_uploaded_excel_files()
-        return render_template('index.html', excel_files=files)
+        from db.query import get_all_tables
+
+        tables = get_all_tables()
+        return render_template("index.html", tables=tables)
 
     return app

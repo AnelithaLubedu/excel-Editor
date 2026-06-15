@@ -1,0 +1,6 @@
+Flask
+pandas
+openpyxl
+xlsxwriter
+psycopg2-binary
+requests

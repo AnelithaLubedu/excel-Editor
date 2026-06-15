@@ -33,13 +33,33 @@
 </head>
 <body>
   <div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+          <strong>✓ Successfully executed.</strong> {{ messages[0][1] }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endif %}
+    {% endwith %}
     <div class="hero">
       <div class="hero-icon">📊</div>
-      <h1 class="mt-3">Upload and Manage Excel Files</h1>
-      <p class="lead">Use this portal to upload Excel files, send data to external APIs, and view stored entries.</p>
-      <form action="/upload" method="post" enctype="multipart/form-data" class="d-flex justify-content-center gap-2 mt-4">
-        <input class="form-control w-50" type="file" name="file" accept=".xlsx,.xls" required>
-        <button class="btn btn-primary" type="submit">Upload</button>
+      <h1 class="mt-3">Upload Excel Data to PostgreSQL</h1>
+      <p class="lead">Upload an Excel file and choose a target table from your PostgreSQL database.</p>
+      <form action="/upload" method="post" enctype="multipart/form-data" class="row justify-content-center g-2 mt-4">
+        <div class="col-md-4">
+          <input class="form-control" type="file" name="file" accept=".xlsx,.xls" required>
+        </div>
+        <div class="col-md-3">
+          <select class="form-select" name="target_table" required>
+            <option value="" disabled selected>Select target table</option>
+            {% for t in tables %}
+              <option value="{{ t }}">{{ t }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-2 d-grid">
+          <button class="btn btn-primary" type="submit">Upload</button>
+        </div>
       </form>
     </div>
 
@@ -62,31 +82,19 @@
     </div>
 
     <div class="excel-table">
-      <h3 class="mb-3">📂 Uploaded Excel Files</h3>
-      {% if excel_files %}
+      <h3 class="mb-3">📂 Available Tables in Database</h3>
+      {% if tables %}
         <ul class="list-group">
-          {% for file in excel_files %}
-           <li class="list-group-item d-flex justify-content-between align-items-center">
-    {{ file.original_filename}}
-    <div>
-        <a href="/show/{{ file.id }}" class="btn btn-warning btn-sm me-2">Edit</a>
-        <a href="/download/{{ file.id }}" class="btn btn-success btn-sm me-2">Download</a>
-        <span class="badge bg-success">{{ file.row_count }} rows</span>
-    </div>
-</li>
-
+          {% for t in tables %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span>{{ t }}</span>
+            </li>
           {% endfor %}
         </ul>
       {% else %}
-        <p class="text-muted">No files uploaded yet.</p>
+        <p class="text-muted">No tables found in the database.</p>
       {% endif %}
     </div>
   </div>
 </body>
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <div class="alert alert-success text-center mt-3">{{ messages[0] }}</div>
-  {% endif %}
-{% endwith %}
-
 </html>
